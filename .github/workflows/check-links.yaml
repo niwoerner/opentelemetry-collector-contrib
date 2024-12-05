@@ -32,7 +32,7 @@ jobs:
         with:
           files_yaml: |
             md:
-              - **.md
+              - '**.md'
             yaml:
               - .github/workflows/check-links.yaml
 
