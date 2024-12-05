@@ -12,7 +12,6 @@ concurrency:
 env:
   # renovate: datasource=github-releases depName=tcort/markdown-link-check
   MD_LINK_CHECK_VERSION: "3.12.2"
-  MD_FILES: "./"
 
 jobs:
   changedfiles:
@@ -21,6 +20,8 @@ jobs:
     if: ${{ github.actor != 'dependabot[bot]' }}
     outputs:
       any_changed: ${{ steps.changed-files.outputs.any_changed }}
+      md_files: ${{ steps.changed-files.outputs.md_all_changed_files }}
+      yaml_files: ${{ steps.changed-files.outputs.yaml_all_changed_files }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,9 +30,12 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@v45
         with:
-          files: |
-            **.md
-            .github/workflows/check-links.yaml
+          files_yaml: |
+            md:
+              - **.md
+            yaml:
+              - .github/workflows/check-links.yaml
+
   check-links:
     runs-on: ubuntu-latest
     needs: changedfiles
@@ -46,8 +50,14 @@ jobs:
 
       - name: Run markdown-link-check
         run: |
+          if [ -z "${{ needs.changedfiles.outputs.md_files }}" ]; then
+            md="./*.md"
+          else
+            md="${{ needs.changedfiles.outputs.md_files }}"
+          fi
+
           markdown-link-check \
             --verbose \
             --config .github/workflows/check_links_config.json \
-            $(find . -type f -name "*.md") \
+            $md \
             || { echo "Check that anchor links are lowercase"; exit 1; }
