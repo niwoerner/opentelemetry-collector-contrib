@@ -49,5 +49,5 @@ jobs:
           markdown-link-check \
             --verbose \
             --config .github/workflows/check_links_config.json \
-            ${{ env.MD_FILES }} \
+            $(find . -type f -name "*.md") \
             || { echo "Check that anchor links are lowercase"; exit 1; }
