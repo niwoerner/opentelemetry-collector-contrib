@@ -49,7 +49,7 @@ jobs:
       - name: Run markdown-link-check
         run: |
           if [ -z "${{ needs.changedfiles.outputs.md_files }}" ]; then
-            md=$(find . -name \*.md -print0)
+            md=$(find . -type f -name "*.md")
           else
             md="${{ needs.changedfiles.outputs.md_files }}"
           fi
@@ -59,4 +59,3 @@ jobs:
             --config .github/workflows/check_links_config.json \
             $md \
             || { echo "Check that anchor links are lowercase"; exit 1; }
-            
