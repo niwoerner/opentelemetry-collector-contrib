@@ -48,10 +48,8 @@ jobs:
         run: npm install -g markdown-link-check@${{ env.MD_LINK_CHECK_VERSION }}
       - name: Run markdown-link-check
         run: |
-          tree
-          ls 
           if [ -z "${{ needs.changedfiles.outputs.md_files }}" ]; then
-            md="./**/*.md"
+            md=$(find . -name \*.md -print0)
           else
             md="${{ needs.changedfiles.outputs.md_files }}"
           fi
@@ -61,3 +59,4 @@ jobs:
             --config .github/workflows/check_links_config.json \
             $md \
             || { echo "Check that anchor links are lowercase"; exit 1; }
+            
