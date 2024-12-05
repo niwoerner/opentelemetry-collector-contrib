@@ -20,7 +20,7 @@ jobs:
     if: ${{ github.actor != 'dependabot[bot]' }}
     outputs:
       md_files: ${{ steps.changed-files.outputs.md_all_changed_files }}
-      yaml_files: ${{ steps.changed-files.outputs.yaml_all_changed_files }}
+      yaml_files: ${{ steps.changed-files.outputs.yaml_all_changed_files }} # used to catch MD_LINK_CHECK_VERSION updates and runs check-links to confirm functionality
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,15 +38,13 @@ jobs:
   check-links:
     runs-on: ubuntu-latest
     needs: changedfiles
-    if: needs.changedfiles.outputs.md_files || needs.changedfiles.outputs.yaml_files
+    if: needs.changedfiles.outputs.md_files || needs.changedfiles.outputs.yaml_files 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Install markdown-link-check
         run: npm install -g markdown-link-check@${{ env.MD_LINK_CHECK_VERSION }}
-
       - name: Run markdown-link-check
         run: |
           if [ -z "${{ needs.changedfiles.outputs.md_files }}" ]; then
