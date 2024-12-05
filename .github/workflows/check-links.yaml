@@ -19,7 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.actor != 'dependabot[bot]' }}
     outputs:
-      any_changed: ${{ steps.changed-files.outputs.any_changed }}
       md_files: ${{ steps.changed-files.outputs.md_all_changed_files }}
       yaml_files: ${{ steps.changed-files.outputs.yaml_all_changed_files }}
     steps:
@@ -39,7 +38,7 @@ jobs:
   check-links:
     runs-on: ubuntu-latest
     needs: changedfiles
-    if: ${{needs.changedfiles.outputs.any_changed}}
+    if: needs.changedfiles.outputs.md_files || needs.changedfiles.outputs.yaml_files
     steps:
       - uses: actions/checkout@v4
         with:
