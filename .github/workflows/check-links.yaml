@@ -58,3 +58,4 @@ jobs:
             --config .github/workflows/check_links_config.json \
             $md \
             || { echo "Check that anchor links are lowercase"; exit 1; }
+            
