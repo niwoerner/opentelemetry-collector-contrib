@@ -10,7 +10,13 @@ import (
 )
 
 func createTracesReceiver(_ context.Context, params receiver.Settings, cfg component.Config, consumer consumer.Traces) (receiver.Traces, error) {
-	return nil, nil
+	// check that the configuration is valid
+	conf, ok := cfg.(*Config)
+	if !ok {
+		return nil, errConfigNotValid
+	}
+
+	return newTracesReceiver(params, conf, consumer)
 }
 
 func NewFactory() receiver.Factory {

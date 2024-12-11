@@ -1,8 +1,27 @@
 package gitlabreceiver
 
 import (
+	"errors"
+	"time"
+
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/config/confighttp"
+	"go.uber.org/multierr"
+)
+
+const (
+	defaultReadTimeout  = 500 * time.Millisecond
+	defaultWriteTimeout = 500 * time.Millisecond
+	defaultPath         = "/events"
+	defaultHealthPath   = "/health"
+	defaultEndpoint     = "localhost:8080"
+)
+
+var (
+	errReadTimeoutExceedsMaxValue  = errors.New("the duration specified for read_timeout exceeds the maximum allowed value of 10s")
+	errWriteTimeoutExceedsMaxValue = errors.New("the duration specified for write_timeout exceeds the maximum allowed value of 10s")
+	errRequiredHeader              = errors.New("both key and value are required to assign a required_header")
+	errConfigNotValid              = errors.New("configuration is not valid for the gitlab receiver")
 )
 
 // Config that is exposed to this gitlab receiver through the OTEL config.yaml
@@ -35,4 +54,24 @@ func createDefaultConfig() component.Config {
 			HealthPath: defaultHealthPath,
 		},
 	}
+}
+
+func (cfg *Config) Validate() error {
+	var errs error
+
+	maxReadWriteTimeout, _ := time.ParseDuration("10s")
+
+	if cfg.WebHook.ServerConfig.ReadTimeout > maxReadWriteTimeout {
+		errs = multierr.Append(errs, errReadTimeoutExceedsMaxValue)
+	}
+
+	if cfg.WebHook.ServerConfig.WriteTimeout > maxReadWriteTimeout {
+		errs = multierr.Append(errs, errWriteTimeoutExceedsMaxValue)
+	}
+
+	if (cfg.WebHook.RequiredHeader.Key != "" && cfg.WebHook.RequiredHeader.Value == "") || (cfg.WebHook.RequiredHeader.Value != "" && cfg.WebHook.RequiredHeader.Key == "") {
+		errs = multierr.Append(errs, errRequiredHeader)
+	}
+
+	return errs
 }
