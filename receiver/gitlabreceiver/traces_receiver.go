@@ -80,7 +80,7 @@ func (gtr *gitlabTracesReceiver) Start(ctx context.Context, host component.Host)
 	if err != nil {
 		return err
 	}
-	gtr.logger.Info("Health check now listening at", zap.String("health_path", gtr.cfg.WebHook.HealthPath))
+	gtr.logger.Info("Health check now listening at", zap.String("health_path", fmt.Sprintf("%s%s", gtr.cfg.WebHook.Endpoint, gtr.cfg.WebHook.HealthPath)))
 
 	gtr.shutdownWG.Add(1)
 	go func() {
